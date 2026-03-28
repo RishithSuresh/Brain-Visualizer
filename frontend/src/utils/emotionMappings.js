@@ -9,7 +9,7 @@
 export const EMOTIONS = [
   { id: 'pain',      label: 'Pain',      emoji: '🤕', color: '#ef4444', desc: 'Unpleasant sensory & emotional experience.' },
   { id: 'happiness', label: 'Happiness', emoji: '😊', color: '#eab308', desc: 'Positive state linked to reward & pleasure.'  },
-  { id: 'fear',      label: 'Fear',      emoji: '😨', color: '#8b5cf6', desc: 'Response to perceived threat or danger.'      },
+  { id: 'fear',      label: 'Fear',      emoji: '😨', color: '#ec4899', desc: 'Response to perceived threat or danger.'      },
   { id: 'anger',     label: 'Anger',     emoji: '😡', color: '#f97316', desc: 'Reaction to injustice or provocation.'        },
   { id: 'sadness',   label: 'Sadness',   emoji: '😢', color: '#3b82f6', desc: 'Emotional pain tied to loss or helplessness.' },
 ];

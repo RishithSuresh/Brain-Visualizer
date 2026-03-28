@@ -93,7 +93,7 @@ export default function VisualizationPage() {
               Loading 3D scene…
             </div>
           }>
-            <BrainScene activeRegions={activeRegions} mode={sceneMode} />
+            <BrainScene activeRegions={activeRegions} mode={sceneMode} selectedEmotion={selectedEmotion} />
           </Suspense>
 
           {/* Overlay hint */}

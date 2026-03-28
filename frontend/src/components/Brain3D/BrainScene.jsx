@@ -33,13 +33,12 @@ function normalizeModel(object, targetSize = 3.9) {
   object.rotation.y += Math.PI;
 }
 
-const LOBE_COLORS = {
-  frontal: new THREE.Color('#e978a6'),
-  parietal: new THREE.Color('#79a8f2'),
-  temporal: new THREE.Color('#f0a35e'),
-  occipital: new THREE.Color('#8fbe62'),
-  limbic: new THREE.Color('#c3a0dc'),
-  deep: new THREE.Color('#79c1ad'),
+const EMOTION_COLORS = {
+  pain: '#a855f7',
+  happiness: '#fde047',
+  anger: '#ef4444',
+  fear: '#ec4899',
+  sadness: '#438bff',
 };
 
 function getAnatomicalZone(x, y, z) {
@@ -125,43 +124,13 @@ function mapActiveRegionsToZones(activeRegions = []) {
   return zoneIntensities;
 }
 
-function applyAnatomicalColors(root, isHolographic, zoneIntensities) {
-  const tint = new THREE.Color(isHolographic ? '#5ac8ff' : '#7fd6ff');
-  const blend = isHolographic ? 0.08 : 0.05;
-
-  root.traverse((child) => {
-    if (!child.isMesh || !child.geometry?.attributes?.position) return;
-
-    const geometry = child.geometry.clone();
-    const positions = geometry.attributes.position;
-    const colorArray = new Float32Array(positions.count * 3);
-
-    for (let i = 0; i < positions.count; i += 1) {
-      const x = positions.getX(i);
-      const y = positions.getY(i);
-      const z = positions.getZ(i);
-      const zone = getAnatomicalZone(x, y, z);
-      const zoneColor = LOBE_COLORS[zone].clone().lerp(tint, blend);
-      const zoneIntensity = zoneIntensities[zone] || 0;
-
-      if (zoneIntensity > 0) {
-        const highlight = emotionIntensityColor(zoneIntensity);
-        const mix = 0.55 + zoneIntensity * 0.45;
-        zoneColor.lerp(highlight, mix);
-      }
-
-      colorArray[i * 3] = zoneColor.r;
-      colorArray[i * 3 + 1] = zoneColor.g;
-      colorArray[i * 3 + 2] = zoneColor.b;
-    }
-
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colorArray, 3));
-    child.geometry = geometry;
-  });
+function getEmotionColor(selectedEmotion) {
+  return new THREE.Color(EMOTION_COLORS[selectedEmotion] || '#ffffff');
 }
 
-function applyActivationOverlay(root, zoneIntensities) {
-  const activeTint = new THREE.Color('#f6fbff');
+function applyActivationOverlay(root, zoneIntensities, selectedEmotion) {
+  const emotionColor = getEmotionColor(selectedEmotion);
+  const isFear = selectedEmotion === 'fear';
 
   root.traverse((child) => {
     if (!child.isMesh || !child.geometry?.attributes?.position) return;
@@ -178,12 +147,7 @@ function applyActivationOverlay(root, zoneIntensities) {
       const zoneIntensity = zoneIntensities[zone] || 0;
 
       if (zoneIntensity > 0) {
-        const highlight = emotionIntensityColor(zoneIntensity);
-        const boosted = highlight
-          .clone()
-          .lerp(activeTint, 0.45)
-          .multiplyScalar(1.15 + zoneIntensity * 0.7);
-
+        const boosted = emotionColor.clone().multiplyScalar(0.55 + zoneIntensity * 0.9);
         colorArray[i * 3] = boosted.r;
         colorArray[i * 3 + 1] = boosted.g;
         colorArray[i * 3 + 2] = boosted.b;
@@ -200,7 +164,7 @@ function applyActivationOverlay(root, zoneIntensities) {
   });
 }
 
-function BrainModel({ mode = 'classic', activeRegions = [] }) {
+function BrainModel({ mode = 'classic', activeRegions = [], selectedEmotion = null }) {
   const modelPath = mode === 'holographic' ? '/models/brain_hologram.glb' : '/models/brain.glb';
   const { scene } = useGLTF(modelPath);
 
@@ -209,22 +173,21 @@ function BrainModel({ mode = 'classic', activeRegions = [] }) {
     normalizeModel(normalizedRoot);
 
     const isHolographic = mode === 'holographic';
+    const isFear = selectedEmotion === 'fear';
     const zoneIntensities = mapActiveRegionsToZones(activeRegions);
-    const colorizedRoot = normalizedRoot.clone(true);
-    applyAnatomicalColors(colorizedRoot, isHolographic, zoneIntensities);
     const activationRoot = normalizedRoot.clone(true);
-    applyActivationOverlay(activationRoot, zoneIntensities);
+    applyActivationOverlay(activationRoot, zoneIntensities, selectedEmotion);
 
     const surfaceMaterial = new THREE.MeshPhysicalMaterial({
       color: '#ffffff',
-      vertexColors: true,
-      emissive: isHolographic ? '#7be7ff' : '#53ccff',
-      emissiveIntensity: isHolographic ? 0.7 : 0.6,
+      vertexColors: false,
+      emissive: '#ffffff',
+      emissiveIntensity: isHolographic ? 0.05 : 0.03,
       transparent: true,
-      opacity: isHolographic ? 0.24 : 0.2,
-      roughness: isHolographic ? 0.06 : 0.16,
-      metalness: 0.06,
-      transmission: isHolographic ? 0.98 : 0.95,
+      opacity: isHolographic ? 0.82 : 0.78,
+      roughness: isHolographic ? 0.24 : 0.3,
+      metalness: 0.01,
+      transmission: isHolographic ? 0.7 : 0.66,
       thickness: 0.35,
       ior: 1.18,
       clearcoat: 1,
@@ -233,11 +196,11 @@ function BrainModel({ mode = 'classic', activeRegions = [] }) {
     });
 
     const innerGlowMaterial = new THREE.MeshStandardMaterial({
-      color: isHolographic ? '#93ecff' : '#6fd8ff',
-      emissive: isHolographic ? '#75e4ff' : '#4ad0ff',
-      emissiveIntensity: isHolographic ? 1.5 : 1.7,
+      color: '#ffffff',
+      emissive: '#ffffff',
+      emissiveIntensity: isHolographic ? 0.06 : 0.04,
       transparent: true,
-      opacity: isHolographic ? 0.14 : 0.16,
+      opacity: isHolographic ? 0.01 : 0.008,
       side: THREE.BackSide,
       depthWrite: false,
     });
@@ -246,17 +209,17 @@ function BrainModel({ mode = 'classic', activeRegions = [] }) {
       color: '#ffffff',
       vertexColors: true,
       transparent: true,
-      opacity: isHolographic ? 0.88 : 0.8,
-      blending: THREE.AdditiveBlending,
+      opacity: isFear ? 0.9 : (isHolographic ? 0.9 : 0.86),
+      blending: isFear ? THREE.NormalBlending : THREE.AdditiveBlending,
       depthWrite: false,
       toneMapped: false,
     });
 
     const wireMaterial = new THREE.MeshBasicMaterial({
       // Keep the classic mesh visual language on both models.
-      color: '#a8edff',
+      color: '#ffffff',
       transparent: true,
-      opacity: isHolographic ? 0.16 : 0.13,
+      opacity: isHolographic ? 0.08 : 0.06,
       wireframe: true,
       depthWrite: false,
     });
@@ -274,12 +237,12 @@ function BrainModel({ mode = 'classic', activeRegions = [] }) {
     };
 
     return {
-      shell: makeLayer(surfaceMaterial, colorizedRoot),
+      shell: makeLayer(surfaceMaterial),
       glow: makeLayer(innerGlowMaterial),
       activation: makeLayer(activationMaterial, activationRoot, 1.015),
       wire: makeLayer(wireMaterial),
     };
-  }, [scene, mode, activeRegions]);
+  }, [scene, mode, activeRegions, selectedEmotion]);
 
   return (
     <group>
@@ -296,7 +259,7 @@ useGLTF.preload('/models/brain.glb');
 useGLTF.preload('/models/brain_hologram.glb');
 
 /** Slowly auto-rotates the whole brain; user can override via OrbitControls */
-function RotatingGroup({ activeRegions, mode }) {
+function RotatingGroup({ activeRegions, mode, selectedEmotion }) {
   const groupRef = useRef();
   useFrame(({ clock }) => {
     if (groupRef.current) {
@@ -306,7 +269,7 @@ function RotatingGroup({ activeRegions, mode }) {
 
   return (
     <group ref={groupRef}>
-      <BrainModel mode={mode} activeRegions={activeRegions} />
+      <BrainModel mode={mode} activeRegions={activeRegions} selectedEmotion={selectedEmotion} />
       {BRAIN_REGION_DATA.map((region) => {
         const active = activeRegions.find(r => r.name === region.name);
         return (
@@ -322,7 +285,7 @@ function RotatingGroup({ activeRegions, mode }) {
   );
 }
 
-export default function BrainScene({ activeRegions = [], mode = 'classic' }) {
+export default function BrainScene({ activeRegions = [], mode = 'classic', selectedEmotion = null }) {
   const isHolographic = mode === 'holographic';
 
   return (
@@ -338,22 +301,22 @@ export default function BrainScene({ activeRegions = [], mode = 'classic' }) {
     >
       <color attach="background" args={[isHolographic ? '#03122f' : '#01071f']} />
 
-      <ambientLight intensity={isHolographic ? 0.28 : 0.22} color={isHolographic ? '#2a73ce' : '#264fbe'} />
-      <pointLight position={[0, 3.8, 4]} intensity={isHolographic ? 2.6 : 2.1} color="#8ce7ff" />
-      <pointLight position={[-4, 1.2, -3]} intensity={isHolographic ? 1.5 : 1.2} color="#4ca6ff" />
-      <pointLight position={[4, -1.5, 2.5]} intensity={isHolographic ? 1.2 : 0.9} color="#2f81ff" />
+      <ambientLight intensity={isHolographic ? 0.45 : 0.4} color="#ffffff" />
+      <pointLight position={[0, 3.8, 4]} intensity={isHolographic ? 1.3 : 1.1} color="#ffffff" />
+      <pointLight position={[-4, 1.2, -3]} intensity={isHolographic ? 0.55 : 0.45} color="#ffffff" />
+      <pointLight position={[4, -1.5, 2.5]} intensity={isHolographic ? 0.45 : 0.35} color="#ffffff" />
 
       <Stars radius={55} depth={45} count={isHolographic ? 3000 : 2200} factor={2.5} fade speed={0.6} />
 
       <Suspense fallback={null}>
-        <RotatingGroup activeRegions={activeRegions} mode={mode} />
+        <RotatingGroup activeRegions={activeRegions} mode={mode} selectedEmotion={selectedEmotion} />
       </Suspense>
 
       <EffectComposer>
         <Bloom
-          intensity={isHolographic ? 1.7 : 2.4}
-          luminanceThreshold={isHolographic ? 0.1 : 0.07}
-          luminanceSmoothing={0.92}
+          intensity={isHolographic ? 0.95 : 1.15}
+          luminanceThreshold={isHolographic ? 0.18 : 0.14}
+          luminanceSmoothing={0.88}
           mipmapBlur
         />
       </EffectComposer>
