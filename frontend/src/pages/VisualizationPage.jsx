@@ -47,8 +47,8 @@ export default function VisualizationPage() {
       <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
 
         {/* ── 3D Brain Canvas ─────────────────────────────────── */}
-        <div className="relative flex-1 min-h-[55vh] lg:min-h-0 bg-gradient-to-br
-                        from-brain-dark to-[#071428]">
+        <div className="relative flex-1 min-h-[55vh] lg:min-h-0"
+             style={{ background: 'radial-gradient(ellipse at 50% 40%, #041e30 0%, #020c18 100%)' }}>
           <ActiveEmotionBadge emotion={selectedEmotion} />
 
           {/* Source badge */}

@@ -15,35 +15,66 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import BrainRegion from './BrainRegion';
 import { BRAIN_REGION_DATA } from '../../utils/emotionMappings';
 
+/**
+ * Cyan X-ray brain shell — 3 layers per part:
+ *   1. Solid translucent surface  (FrontSide, low opacity cyan)
+ *   2. Back-side inner glow       (BackSide, higher emissive)
+ *   3. Wireframe cage overlay     (meshBasicMaterial, wireframe)
+ */
+function ShellPart({ geometry, position = [0,0,0], scale = [1,1,1], rotation = [0,0,0] }) {
+  return (
+    <group position={position} scale={scale} rotation={rotation}>
+      {/* Layer 1 – solid translucent cyan surface */}
+      <mesh>
+        {geometry}
+        <meshStandardMaterial
+          color="#00bcd4" emissive="#007090" emissiveIntensity={0.55}
+          transparent opacity={0.13} roughness={0.35} metalness={0.2}
+        />
+      </mesh>
+      {/* Layer 2 – back-side inner glow */}
+      <mesh>
+        {geometry}
+        <meshStandardMaterial
+          color="#00e5ff" emissive="#00bcd4" emissiveIntensity={0.85}
+          transparent opacity={0.07} side={2}   /* THREE.BackSide = 2 */
+        />
+      </mesh>
+      {/* Layer 3 – wireframe cage */}
+      <mesh>
+        {geometry}
+        <meshBasicMaterial color="#00e5ff" transparent opacity={0.11} wireframe />
+      </mesh>
+    </group>
+  );
+}
+
 /** Translucent outer brain shell built from overlapping ellipsoids */
 function BrainShell() {
   return (
     <group>
       {/* Central mass */}
-      <mesh>
-        <sphereGeometry args={[2.0, 64, 64]} />
-        <meshStandardMaterial color="#0a1f3d" transparent opacity={0.14} wireframe={false} />
-      </mesh>
+      <ShellPart geometry={<sphereGeometry args={[2.0, 48, 48]} />} />
       {/* Left hemisphere */}
-      <mesh position={[-0.55, 0, 0]} scale={[1, 0.92, 1]}>
-        <sphereGeometry args={[1.68, 48, 48]} />
-        <meshStandardMaterial color="#0d2545" transparent opacity={0.18} />
-      </mesh>
+      <ShellPart
+        geometry={<sphereGeometry args={[1.68, 36, 36]} />}
+        position={[-0.55, 0, 0]} scale={[1, 0.92, 1]}
+      />
       {/* Right hemisphere */}
-      <mesh position={[0.55, 0, 0]} scale={[1, 0.92, 1]}>
-        <sphereGeometry args={[1.68, 48, 48]} />
-        <meshStandardMaterial color="#0d2545" transparent opacity={0.18} />
-      </mesh>
+      <ShellPart
+        geometry={<sphereGeometry args={[1.68, 36, 36]} />}
+        position={[0.55, 0, 0]} scale={[1, 0.92, 1]}
+      />
       {/* Cerebellum */}
-      <mesh position={[0, -1.18, -1.15]} scale={[1.1, 0.75, 0.9]}>
-        <sphereGeometry args={[0.82, 32, 32]} />
-        <meshStandardMaterial color="#0d2545" transparent opacity={0.22} />
-      </mesh>
+      <ShellPart
+        geometry={<sphereGeometry args={[0.82, 28, 28]} />}
+        position={[0, -1.18, -1.15]} scale={[1.1, 0.75, 0.9]}
+      />
       {/* Brain stem */}
-      <mesh position={[0, -1.72, -0.55]} rotation={[0.3, 0, 0]}>
-        <cylinderGeometry args={[0.18, 0.14, 0.7, 16]} />
-        <meshStandardMaterial color="#0d2545" transparent opacity={0.25} />
-      </mesh>
+      <ShellPart
+        geometry={<cylinderGeometry args={[0.18, 0.14, 0.7, 16]} />}
+        position={[0, -1.72, -0.55]} rotation={[0.3, 0, 0]}
+      />
     </group>
   );
 }
@@ -80,27 +111,28 @@ export default function BrainScene({ activeRegions = [] }) {
     <Canvas
       camera={{ position: [0, 0.5, 6], fov: 48 }}
       dpr={[1, 2]}
-      style={{ background: 'transparent' }}
+      style={{ background: 'radial-gradient(ellipse at 50% 40%, #041e30 0%, #020c18 100%)' }}
     >
-      {/* Lighting */}
-      <ambientLight intensity={0.6} />
-      <pointLight position={[6,  6,  6]} intensity={1.2} color="#ffffff" />
-      <pointLight position={[-6,-4, -4]} intensity={0.6} color="#3b82f6" />
-      <pointLight position={[0,  8,  0]} intensity={0.4} color="#38bdf8" />
+      {/* ── Lighting: cyan-dominant to match the X-ray brain look ── */}
+      <ambientLight intensity={0.25} color="#003d52" />
+      <pointLight position={[0,  4,  4]}  intensity={3.0} color="#00e5ff" />
+      <pointLight position={[-5, 1, -2]} intensity={1.4} color="#00bcd4" />
+      <pointLight position={[5, -2,  2]} intensity={0.9} color="#00a0b8" />
+      <pointLight position={[0, -4, -3]} intensity={0.5} color="#006080" />
 
-      {/* Stars background */}
-      <Stars radius={50} depth={40} count={1800} factor={3} fade speed={0.6} />
+      {/* Stars — denser and slightly faster for a neural-network feel */}
+      <Stars radius={60} depth={50} count={2800} factor={3.5} fade speed={0.8} />
 
       <Suspense fallback={null}>
         <RotatingGroup activeRegions={activeRegions} />
       </Suspense>
 
-      {/* Bloom glow post-processing */}
+      {/* ── Bloom: stronger, lower threshold so the cyan shell glows ── */}
       <EffectComposer>
         <Bloom
-          intensity={1.4}
-          luminanceThreshold={0.25}
-          luminanceSmoothing={0.85}
+          intensity={2.8}
+          luminanceThreshold={0.08}
+          luminanceSmoothing={0.9}
           mipmapBlur
         />
       </EffectComposer>
