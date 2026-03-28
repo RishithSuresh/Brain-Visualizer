@@ -39,6 +39,7 @@ function ActiveEmotionBadge({ emotion }) {
 
 export default function VisualizationPage() {
   const [sceneMode, setSceneMode] = useState('holographic');
+  const [researchMode, setResearchMode] = useState(true);
 
   const {
     selectedEmotion, activeRegions, intensityMult,
@@ -79,6 +80,18 @@ export default function VisualizationPage() {
               Holographic net/mesh
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setResearchMode((value) => !value)}
+            className={`absolute top-16 left-1/2 -translate-x-1/2 z-10 px-3 py-1 text-xs rounded-full border backdrop-blur-sm transition ${
+              researchMode
+                ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200'
+                : 'border-slate-600 bg-brain-panel/85 text-slate-400'
+            }`}
+          >
+            Research mode {researchMode ? 'on' : 'off'}
+          </button>
 
           {/* Source badge */}
           {source && (
@@ -146,6 +159,7 @@ export default function VisualizationPage() {
             <RegionInfoPanel
               activeRegions={activeRegions}
               emotion={selectedEmotion}
+              researchMode={researchMode}
             />
           </div>
         </div>

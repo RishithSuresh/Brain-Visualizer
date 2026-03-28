@@ -5,7 +5,7 @@
  * intensity bars, descriptions, and a colour-coded heat indicator.
  */
 import { motion, AnimatePresence } from 'framer-motion';
-import { intensityToColor } from '../utils/emotionMappings';
+import { intensityToColor, EMOTION_RESEARCH_NOTES } from '../utils/emotionMappings';
 import { BRAIN_REGION_DATA } from '../utils/emotionMappings';
 
 function getDesc(regionName) {
@@ -13,7 +13,7 @@ function getDesc(regionName) {
   return found?.desc ?? '';
 }
 
-export default function RegionInfoPanel({ activeRegions, emotion }) {
+export default function RegionInfoPanel({ activeRegions, emotion, researchMode = true }) {
   if (!emotion) {
     return (
       <div className="glass-panel p-4 text-center text-slate-500 text-sm">
@@ -28,6 +28,27 @@ export default function RegionInfoPanel({ activeRegions, emotion }) {
       <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
         Active Brain Regions
       </h2>
+
+      {researchMode && EMOTION_RESEARCH_NOTES[emotion] && (
+        <div className="glass-panel p-3 space-y-2 border border-slate-700/60">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-300">
+              Research basis
+            </h3>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-slate-600 text-slate-400 bg-slate-900/60">
+              {EMOTION_RESEARCH_NOTES[emotion].confidence}
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 leading-snug">
+            {EMOTION_RESEARCH_NOTES[emotion].summary}
+          </p>
+          <ul className="space-y-1 text-xs text-slate-500 leading-snug list-disc pl-4">
+            {EMOTION_RESEARCH_NOTES[emotion].bullets.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <AnimatePresence mode="popLayout">
         {activeRegions.map((region, i) => {

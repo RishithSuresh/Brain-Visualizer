@@ -14,6 +14,54 @@ export const EMOTIONS = [
   { id: 'sadness',   label: 'Sadness',   emoji: '😢', color: '#3b82f6', desc: 'Emotional pain tied to loss or helplessness.' },
 ];
 
+export const EMOTION_RESEARCH_NOTES = {
+  pain: {
+    confidence: 'high',
+    summary: 'Pain processing is commonly associated with insula, thalamus, and anterior cingulate cortex activity.',
+    bullets: [
+      'Insula is frequently linked to interoceptive and pain awareness.',
+      'Thalamus acts as a major relay for sensory pain signals.',
+      'Anterior cingulate cortex is often involved in the affective dimension of pain.',
+    ],
+  },
+  happiness: {
+    confidence: 'moderate',
+    summary: 'Positive affect and reward are often linked to prefrontal and dopaminergic circuitry.',
+    bullets: [
+      'Prefrontal regions are commonly involved in regulation and appraisal.',
+      'Dopaminergic pathways are strongly associated with reward and motivation.',
+      'Reward processing is distributed rather than localized to one single site.',
+    ],
+  },
+  fear: {
+    confidence: 'high',
+    summary: 'Threat detection and autonomic fear responses are commonly linked to amygdala and hypothalamic circuits.',
+    bullets: [
+      'Amygdala is widely associated with threat detection and fear learning.',
+      'Hypothalamus contributes to autonomic and hormonal stress responses.',
+      'Cortical regulation can modulate fear responses rather than acting alone.',
+    ],
+  },
+  anger: {
+    confidence: 'moderate',
+    summary: 'Anger is typically treated as a distributed state involving limbic reactivity and frontal regulation.',
+    bullets: [
+      'Amygdala is often involved in salience and emotional reactivity.',
+      'Prefrontal cortex contributes to impulse control and regulation.',
+      'Anger is network-based and overlaps with stress and threat processing.',
+    ],
+  },
+  sadness: {
+    confidence: 'moderate',
+    summary: 'Sadness and emotional memory are often associated with hippocampal and prefrontal systems.',
+    bullets: [
+      'Hippocampus is involved in memory and context, which can shape sad affect.',
+      'Prefrontal regulation is relevant to reappraisal and mood control.',
+      'Mood-related states usually involve several networks together.',
+    ],
+  },
+};
+
 // ── Brain region 3-D layout ───────────────────────────────────────
 // position = [x, y, z] in Three.js world units; brain shell ≈ r2 sphere
 export const BRAIN_REGION_DATA = [

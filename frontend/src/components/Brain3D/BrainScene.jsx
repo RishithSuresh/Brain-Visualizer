@@ -36,9 +36,9 @@ function normalizeModel(object, targetSize = 3.9) {
 const EMOTION_COLORS = {
   pain: '#a855f7',
   happiness: '#fde047',
-  anger: '#ef4444',
+  anger: '#ff0000',
   fear: '#ec4899',
-  sadness: '#438bff',
+  sadness: '#2125f9',
 };
 
 function getAnatomicalZone(x, y, z) {
