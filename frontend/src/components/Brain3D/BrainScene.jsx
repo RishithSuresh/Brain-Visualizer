@@ -2,82 +2,68 @@
  * BrainScene.jsx
  * ─────────────────────────────────────────────────────────────────
  * The main React Three Fiber scene containing:
- *   • A stylised transparent brain shell (main + hemispheres + cerebellum)
- *   • All BrainRegion nodes positioned anatomically
+ *   • An anatomically-modelled transparent brain (loaded from brain.glb)
+ *   • 3-layer X-ray shader: translucent surface + back-side glow + wireframe
+ *   • All BrainRegion nodes positioned inside the brain
  *   • Bloom post-processing for the glow effect
  *   • Slow auto-rotation with OrbitControls for manual navigation
- *   • Starfield background particles
  */
-import { Suspense, useRef } from 'react';
+import { Suspense, useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
+import { OrbitControls, Stars, useGLTF } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import * as THREE from 'three';
 import BrainRegion from './BrainRegion';
 import { BRAIN_REGION_DATA } from '../../utils/emotionMappings';
 
 /**
- * Cyan X-ray brain shell — 3 layers per part:
- *   1. Solid translucent surface  (FrontSide, low opacity cyan)
- *   2. Back-side inner glow       (BackSide, higher emissive)
- *   3. Wireframe cage overlay     (meshBasicMaterial, wireframe)
+ * Loads the anatomical brain GLB and renders it with 3 material layers:
+ *   1. Solid translucent cyan surface  (FrontSide)
+ *   2. Back-side inner glow            (BackSide)
+ *   3. Wireframe overlay               (meshBasicMaterial)
  */
-function ShellPart({ geometry, position = [0,0,0], scale = [1,1,1], rotation = [0,0,0] }) {
+function BrainModel() {
+  const { scene } = useGLTF('/models/brain.glb');
+
+  // Collect all mesh geometries from the loaded GLB scene
+  const geometries = useMemo(() => {
+    const geos = [];
+    scene.traverse((child) => {
+      if (child.isMesh) geos.push(child.geometry);
+    });
+    return geos;
+  }, [scene]);
+
   return (
-    <group position={position} scale={scale} rotation={rotation}>
-      {/* Layer 1 – solid translucent cyan surface */}
-      <mesh>
-        {geometry}
-        <meshStandardMaterial
-          color="#00bcd4" emissive="#007090" emissiveIntensity={0.55}
-          transparent opacity={0.13} roughness={0.35} metalness={0.2}
-        />
-      </mesh>
-      {/* Layer 2 – back-side inner glow */}
-      <mesh>
-        {geometry}
-        <meshStandardMaterial
-          color="#00e5ff" emissive="#00bcd4" emissiveIntensity={0.85}
-          transparent opacity={0.07} side={2}   /* THREE.BackSide = 2 */
-        />
-      </mesh>
-      {/* Layer 3 – wireframe cage */}
-      <mesh>
-        {geometry}
-        <meshBasicMaterial color="#00e5ff" transparent opacity={0.11} wireframe />
-      </mesh>
+    <group>
+      {geometries.map((geo, i) => (
+        <group key={i}>
+          {/* Layer 1 – solid translucent cyan surface */}
+          <mesh geometry={geo}>
+            <meshStandardMaterial
+              color="#00bcd4" emissive="#006e84" emissiveIntensity={0.6}
+              transparent opacity={0.14} roughness={0.30} metalness={0.15}
+            />
+          </mesh>
+          {/* Layer 2 – back-side inner glow (creates lit-from-within effect) */}
+          <mesh geometry={geo}>
+            <meshStandardMaterial
+              color="#00e5ff" emissive="#00bcd4" emissiveIntensity={0.90}
+              transparent opacity={0.08} side={THREE.BackSide}
+            />
+          </mesh>
+          {/* Layer 3 – wireframe cage (the fine grid lines) */}
+          <mesh geometry={geo}>
+            <meshBasicMaterial color="#00e5ff" transparent opacity={0.10} wireframe />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
 
-/** Translucent outer brain shell built from overlapping ellipsoids */
-function BrainShell() {
-  return (
-    <group>
-      {/* Central mass */}
-      <ShellPart geometry={<sphereGeometry args={[2.0, 48, 48]} />} />
-      {/* Left hemisphere */}
-      <ShellPart
-        geometry={<sphereGeometry args={[1.68, 36, 36]} />}
-        position={[-0.55, 0, 0]} scale={[1, 0.92, 1]}
-      />
-      {/* Right hemisphere */}
-      <ShellPart
-        geometry={<sphereGeometry args={[1.68, 36, 36]} />}
-        position={[0.55, 0, 0]} scale={[1, 0.92, 1]}
-      />
-      {/* Cerebellum */}
-      <ShellPart
-        geometry={<sphereGeometry args={[0.82, 28, 28]} />}
-        position={[0, -1.18, -1.15]} scale={[1.1, 0.75, 0.9]}
-      />
-      {/* Brain stem */}
-      <ShellPart
-        geometry={<cylinderGeometry args={[0.18, 0.14, 0.7, 16]} />}
-        position={[0, -1.72, -0.55]} rotation={[0.3, 0, 0]}
-      />
-    </group>
-  );
-}
+// Preload the model as soon as the module is imported
+useGLTF.preload('/models/brain.glb');
 
 /** Slowly auto-rotates the whole brain; user can override via OrbitControls */
 function RotatingGroup({ activeRegions }) {
@@ -90,7 +76,8 @@ function RotatingGroup({ activeRegions }) {
 
   return (
     <group ref={groupRef}>
-      <BrainShell />
+      {/* Anatomical brain model loaded from brain.glb */}
+      <BrainModel />
       {BRAIN_REGION_DATA.map((region) => {
         const active = activeRegions.find(r => r.name === region.name);
         return (
