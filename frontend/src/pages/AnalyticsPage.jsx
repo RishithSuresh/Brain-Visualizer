@@ -11,7 +11,9 @@ import { motion } from 'framer-motion';
 import useHistory from '../hooks/useHistory';
 import EmotionFrequency from '../components/Analytics/EmotionFrequency';
 import IntensityTrend   from '../components/Analytics/IntensityTrend';
+import { useToast } from '../hooks/useToast';
 import { EMOTIONS } from '../utils/emotionMappings';
+import { formatExactTime, formatRelativeTime } from '../utils/dateUtils';
 
 const EMOTION_META = Object.fromEntries(EMOTIONS.map(e => [e.id, e]));
 
@@ -30,21 +32,38 @@ function StatCard({ icon, label, value, sub }) {
   );
 }
 
-function formatDate(ts) {
-  return new Date(ts).toLocaleString(undefined, {
-    month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
-
 export default function AnalyticsPage() {
-  const { history, frequency, trend, loading, error, refresh } = useHistory();
+  const { history, frequency, trend, loading, clearing, error, refresh, clearHistory } = useHistory();
+  const { pushToast } = useToast();
 
   const totalSelections = frequency.reduce((a, f) => a + parseInt(f.count), 0);
   const topEmotion = frequency[0];
   const avgIntensity = history.length
     ? (history.reduce((a, h) => a + parseFloat(h.intensity_multiplier), 0) / history.length * 100).toFixed(0)
     : '—';
+
+  const handleClearHistory = async () => {
+    if (!history.length) return;
+
+    const confirmed = window.confirm('Clear all saved history entries? This cannot be undone.');
+    if (!confirmed) return;
+
+    const result = await clearHistory();
+    if (result) {
+      pushToast({
+        title: 'History cleared',
+        description: 'Analytics data has been reset.',
+        tone: 'success',
+      });
+      return;
+    }
+
+    pushToast({
+      title: 'Clear failed',
+      description: 'The server could not remove the saved history.',
+      tone: 'error',
+    });
+  };
 
   return (
     <main className="pt-20 pb-16 px-4 sm:px-8 max-w-6xl mx-auto">
@@ -54,10 +73,16 @@ export default function AnalyticsPage() {
           <h1 className="section-title">Analytics Dashboard</h1>
           <p className="section-sub">Emotion selection frequency and intensity trends</p>
         </div>
-        <button onClick={refresh} disabled={loading}
-          className="btn-ghost flex items-center gap-2 text-xs">
-          {loading ? '⏳ Loading…' : '🔄 Refresh'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleClearHistory} disabled={clearing || loading || !history.length}
+            className="btn-ghost flex items-center gap-2 text-xs disabled:opacity-40 disabled:cursor-not-allowed">
+            {clearing ? '🧹 Clearing…' : '🧹 Clear history'}
+          </button>
+          <button onClick={refresh} disabled={loading || clearing}
+            className="btn-ghost flex items-center gap-2 text-xs disabled:opacity-40 disabled:cursor-not-allowed">
+            {loading ? '⏳ Loading…' : '🔄 Refresh'}
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -128,7 +153,9 @@ export default function AnalyticsPage() {
                       </div>
                     </td>
                     <td className="px-5 py-3 text-xs text-slate-500 font-mono">
-                      {formatDate(row.timestamp)}
+                      <div title={formatExactTime(row.timestamp)}>
+                        {formatRelativeTime(row.timestamp)}
+                      </div>
                     </td>
                   </tr>
                 );

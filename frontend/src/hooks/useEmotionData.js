@@ -8,18 +8,31 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchEmotionData, saveEmotionSelection } from '../utils/api';
 import { EMOTION_MAPPINGS } from '../utils/emotionMappings';
+import { useToast } from './useToast';
+
+function scaleRegions(regions, multiplier) {
+  return regions.map((region) => ({
+    name: region.name,
+    intensity: Math.min((Number(region.intensity) || 0) * multiplier, 1),
+    desc: region.function_desc || region.function || '',
+  }));
+}
 
 export default function useEmotionData() {
-  const [selectedEmotion, setSelectedEmotion]         = useState(null);
-  const [activeRegions,   setActiveRegions]           = useState([]);
-  const [intensityMult,   setIntensityMult]           = useState(1.0);
-  const [loading,         setLoading]                 = useState(false);
-  const [source,          setSource]                  = useState('local');  // 'local' | 'database'
+  const [selectedEmotion, setSelectedEmotion] = useState(null);
+  const [baseRegions, setBaseRegions] = useState([]);
+  const [activeRegions, setActiveRegions] = useState([]);
+  const [intensityMult, setIntensityMult] = useState(1.0);
+  const [loading, setLoading] = useState(false);
+  const [source, setSource] = useState('local');  // 'local' | 'database'
+  const { pushToast } = useToast();
 
   // Derive active regions whenever emotion or multiplier changes
   useEffect(() => {
     if (!selectedEmotion) {
+      setBaseRegions([]);
       setActiveRegions([]);
+      setLoading(false);
       return;
     }
 
@@ -27,34 +40,32 @@ export default function useEmotionData() {
     setLoading(true);
 
     (async () => {
-      // 1. Try to fetch from API
-      const data = await fetchEmotionData(selectedEmotion);
+      try {
+        // 1. Try to fetch from API
+        const data = await fetchEmotionData(selectedEmotion);
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (data?.regions?.length) {
-        setActiveRegions(
-          data.regions.map(r => ({
-            name:      r.name,
-            intensity: Math.min(r.intensity * intensityMult, 1),
-            desc:      r.function_desc || r.function || '',
-          }))
-        );
-        setSource(data.source || 'database');
-      } else {
-        // 2. Fall back to local static mappings
-        const local = EMOTION_MAPPINGS[selectedEmotion] || [];
-        setActiveRegions(
-          local.map(r => ({
-            name:      r.name,
-            intensity: Math.min(r.intensity * intensityMult, 1),
-            desc:      r.function_desc || '',
-          }))
-        );
-        setSource('local');
+        if (data?.regions?.length) {
+          const regions = data.regions.map(r => ({
+            name: r.name,
+            intensity: Number(r.intensity) || 0,
+            desc: r.function_desc || r.function || '',
+          }));
+
+          setBaseRegions(regions);
+          setActiveRegions(scaleRegions(regions, intensityMult));
+          setSource(data.source || 'database');
+        } else {
+          // 2. Fall back to local static mappings
+          const local = EMOTION_MAPPINGS[selectedEmotion] || [];
+          setBaseRegions(local);
+          setActiveRegions(scaleRegions(local, intensityMult));
+          setSource('local');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-
-      setLoading(false);
     })();
 
     return () => { cancelled = true; };
@@ -65,21 +76,30 @@ export default function useEmotionData() {
   useEffect(() => {
     if (!selectedEmotion) return;
 
-    const base = EMOTION_MAPPINGS[selectedEmotion] || [];
-    setActiveRegions(
-      base.map(r => ({
-        name:      r.name,
-        intensity: Math.min(r.intensity * intensityMult, 1),
-        desc:      r.function_desc || '',
-      }))
-    );
-  }, [intensityMult, selectedEmotion]);
+    setActiveRegions(scaleRegions(baseRegions, intensityMult));
+  }, [baseRegions, intensityMult, selectedEmotion]);
 
   // Persist selection to history via API (fire-and-forget)
-  const selectEmotion = useCallback((emotion) => {
+  const selectEmotion = useCallback(async (emotion) => {
     setSelectedEmotion(emotion);
-    if (emotion) saveEmotionSelection(emotion, intensityMult);
-  }, [intensityMult]);
+    if (!emotion) return;
+
+    const result = await saveEmotionSelection(emotion, intensityMult);
+    if (result) {
+      pushToast({
+        title: 'Emotion saved',
+        description: `${emotion} was added to history.`,
+        tone: 'success',
+      });
+      return;
+    }
+
+    pushToast({
+      title: 'Offline mode',
+      description: 'Emotion updated locally, but the history entry was not saved.',
+      tone: 'warning',
+    });
+  }, [intensityMult, pushToast]);
 
   return {
     selectedEmotion,

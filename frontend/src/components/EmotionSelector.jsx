@@ -40,6 +40,10 @@ export default function EmotionSelector({ selected, onSelect }) {
               {/* Emoji icon */}
               <span className="text-xl leading-none flex-shrink-0">{emotion.emoji}</span>
 
+                <span className="absolute right-3 top-3 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-semibold text-slate-400">
+                  {i + 1}
+                </span>
+
               {/* Labels */}
               <div className="flex-1 min-w-0">
                 <span

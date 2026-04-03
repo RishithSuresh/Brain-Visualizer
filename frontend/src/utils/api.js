@@ -70,3 +70,18 @@ export async function fetchAnalytics() {
   return getJSON('/analytics');
 }
 
+/**
+ * Clear the stored history entries.
+ * Returns the backend response or null on failure.
+ */
+export async function clearHistory() {
+  try {
+    const res = await fetch(`${BASE_URL}/history`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn('[API] DELETE /history failed:', err.message);
+    return null;
+  }
+}
+

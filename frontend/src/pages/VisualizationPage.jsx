@@ -5,8 +5,7 @@
  *  • Left panel  – 3D brain canvas (BrainScene)
  *  • Right panel – Emotion selector, intensity slider, region panel
  */
-import { Suspense } from 'react';
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import useEmotionData from '../hooks/useEmotionData';
 import EmotionSelector from '../components/EmotionSelector';
@@ -45,6 +44,28 @@ export default function VisualizationPage() {
     selectedEmotion, activeRegions, intensityMult,
     setIntensityMult, selectEmotion, loading, source,
   } = useEmotionData();
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const index = Number(event.key) - 1;
+      if (index < 0 || index >= EMOTIONS.length) return;
+
+      selectEmotion(selectedEmotion === EMOTIONS[index].id ? null : EMOTIONS[index].id);
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectEmotion, selectedEmotion]);
 
   return (
     <main className="pt-16 h-screen flex flex-col">

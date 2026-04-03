@@ -6,6 +6,7 @@ const {
   saveEmotion,
   getHistory,
   getAnalytics,
+  clearHistory,
 } = require('../controllers/emotionController');
 
 // GET /api/emotion/:name – brain regions + intensity for a given emotion
@@ -16,6 +17,9 @@ router.post('/emotion', saveEmotion);
 
 // GET /api/history – retrieve past emotion selections
 router.get('/history', getHistory);
+
+// DELETE /api/history – clear past emotion selections
+router.delete('/history', clearHistory);
 
 // GET /api/analytics – aggregated stats for dashboard
 router.get('/analytics', getAnalytics);

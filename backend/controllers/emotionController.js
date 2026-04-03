@@ -99,5 +99,15 @@ const getAnalytics = async (req, res) => {
   }
 };
 
-module.exports = { getEmotionData, saveEmotion, getHistory, getAnalytics };
+// DELETE /api/history → clear saved selections for demos/reset
+const clearHistory = async (_req, res) => {
+  try {
+    const [result] = await pool.execute('DELETE FROM history');
+    res.json({ ok: true, deleted: result.affectedRows ?? 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getEmotionData, saveEmotion, getHistory, getAnalytics, clearHistory };
 

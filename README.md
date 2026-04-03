@@ -7,7 +7,10 @@ Brain Visualizer is a full-stack emotion-to-brain-region visualization app. The 
 - Interactive 3D brain visualization using React Three Fiber and Three.js
 - Emotion selection with intensity control
 - Region activation overlays and labeled brain regions
+- Keyboard shortcuts for fast emotion switching
+- Toast notifications for save and history actions
 - Analytics dashboard with frequency and intensity trends
+- Clear-history action for resetting demo data
 - MySQL-backed history persistence
 - REST API with local fallback data when the database is unavailable
 

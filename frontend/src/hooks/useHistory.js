@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { fetchHistory, fetchAnalytics } from '../utils/api';
+import { fetchHistory, fetchAnalytics, clearHistory as clearHistoryRequest } from '../utils/api';
 import { EMOTIONS } from '../utils/emotionMappings';
 
 // Build a deterministic fallback frequency table from EMOTIONS list
@@ -23,6 +23,7 @@ export default function useHistory() {
   const [frequency, setFrequency] = useState(buildFallbackFrequency());
   const [trend,     setTrend]     = useState([]);
   const [loading,   setLoading]   = useState(false);
+  const [clearing,  setClearing]  = useState(false);
   const [error,     setError]     = useState(null);
 
   const refresh = useCallback(async () => {
@@ -45,9 +46,27 @@ export default function useHistory() {
     setLoading(false);
   }, []);
 
+  const clearHistory = useCallback(async () => {
+    setClearing(true);
+    setError(null);
+
+    const result = await clearHistoryRequest();
+    if (!result) {
+      setError('Unable to clear history right now.');
+      setClearing(false);
+      return false;
+    }
+
+    setHistory([]);
+    setFrequency([]);
+    setTrend([]);
+    setClearing(false);
+    return true;
+  }, []);
+
   // Initial fetch on mount
   useEffect(() => { refresh(); }, [refresh]);
 
-  return { history, frequency, trend, loading, error, refresh };
+  return { history, frequency, trend, loading, clearing, error, refresh, clearHistory };
 }
 
