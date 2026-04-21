@@ -24,7 +24,7 @@ export default function useEmotionData() {
   const [activeRegions, setActiveRegions] = useState([]);
   const [intensityMult, setIntensityMult] = useState(1.0);
   const [loading, setLoading] = useState(false);
-  const [source, setSource] = useState('local');  // 'local' | 'database'
+  const [source, setSource] = useState('local');
   const { pushToast } = useToast();
 
   // Derive active regions whenever emotion or multiplier changes
@@ -55,7 +55,7 @@ export default function useEmotionData() {
 
           setBaseRegions(regions);
           setActiveRegions(scaleRegions(regions, intensityMult));
-          setSource(data.source || 'database');
+          setSource(data.source || 'local');
         } else {
           // 2. Fall back to local static mappings
           const local = EMOTION_MAPPINGS[selectedEmotion] || [];

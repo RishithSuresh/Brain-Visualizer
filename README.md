@@ -1,6 +1,6 @@
 # Brain Visualizer
 
-Brain Visualizer is a full-stack emotion-to-brain-region visualization app. The frontend renders an interactive 3D brain scene with emotion-driven activation overlays and analytics dashboards, while the backend stores emotion history and serves mapping data from MySQL.
+Brain Visualizer is a full-stack emotion-to-brain-region visualization app. The frontend renders an interactive 3D brain scene with emotion-driven activation overlays and analytics dashboards, while the backend serves local emotion data and session history.
 
 ## Features
 
@@ -11,26 +11,24 @@ Brain Visualizer is a full-stack emotion-to-brain-region visualization app. The 
 - Toast notifications for save and history actions
 - Analytics dashboard with frequency and intensity trends
 - Clear-history action for resetting demo data
-- MySQL-backed history persistence
-- REST API with local fallback data when the database is unavailable
+- REST API backed by local in-memory data
+- No external database required
 
 ## Tech Stack
 
 - Frontend: React, Vite, Tailwind CSS, Framer Motion, React Three Fiber, Chart.js
-- Backend: Node.js, Express, CORS, MySQL2, dotenv
-- Database: MySQL
+- Backend: Node.js, Express, CORS, dotenv
 
 ## Project Structure
 
 - `frontend/` - React application and 3D assets
-- `backend/` - Express API and database schema
+- `backend/` - Express API and local data store
 - `README.md` - Project overview and setup instructions
 
 ## Prerequisites
 
 - Node.js 18 or later
 - npm
-- MySQL server
 
 ## Setup
 
@@ -50,29 +48,14 @@ npm install
 
 ### 3. Configure the backend environment
 
-Copy `backend/.env.example` to `backend/.env` and update the MySQL credentials if needed.
+Copy `backend/.env.example` to `backend/.env` and adjust the port or frontend URL if needed.
 
 Example values:
 
 ```env
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_mysql_password_here
-DB_NAME=brain_visualizer
 PORT=5000
 FRONTEND_URL=http://localhost:5173
 ```
-
-### 4. Create and seed the database
-
-Run the schema file against your MySQL server:
-
-```bash
-mysql -u root -p < backend/database/schema.sql
-```
-
-This creates the `brain_visualizer` database, core tables, and sample seed data for analytics.
 
 ## Running the App
 
@@ -119,8 +102,7 @@ npm run preview
 ## Notes
 
 - The frontend brain scene loads model files from `frontend/public/models/`.
-- If MySQL is unavailable, emotion mapping requests fall back to local data in the backend controller.
-- The repository includes sample data so the analytics page shows useful content after seeding the database.
+- Analytics and history use in-memory demo data, so they reset when the backend restarts.
 
 ## License
 

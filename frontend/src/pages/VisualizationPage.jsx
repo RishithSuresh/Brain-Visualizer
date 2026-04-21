@@ -118,7 +118,7 @@ export default function VisualizationPage() {
           {source && (
             <div className="absolute top-4 right-4 z-10 text-xs px-2 py-1 rounded
                             border border-brain-border text-slate-500 bg-brain-panel">
-              {source === 'database' ? '🗄️ DB' : '📦 Local'}
+              {source === 'local' ? '📦 Local' : source}
             </div>
           )}
 

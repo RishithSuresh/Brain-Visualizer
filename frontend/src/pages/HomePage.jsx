@@ -8,7 +8,7 @@ const features = [
   { icon: '🧠', title: '3D Brain Model',     desc: 'Interact with a real-time 3D visualisation of brain anatomy rendered via WebGL.' },
   { icon: '⚡', title: 'Live Activation',    desc: 'Watch brain regions light up with heatmap colouring as emotions change.' },
   { icon: '📊', title: 'Analytics',          desc: 'Track emotion frequency and intensity trends over time with Chart.js graphs.' },
-  { icon: '🗄️', title: 'Persistent History', desc: 'Every selection is saved to MySQL and retrievable via the REST API.' },
+  { icon: '🧾', title: 'Session History',    desc: 'Selections are recorded locally so the dashboard stays useful without a database.' },
 ];
 
 const emotions = [
