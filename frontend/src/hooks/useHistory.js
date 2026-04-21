@@ -11,10 +11,13 @@ import { EMOTIONS } from '../utils/emotionMappings';
 
 // Build a deterministic fallback frequency table from EMOTIONS list
 function buildFallbackFrequency() {
+  const fallbackCounts = [4, 7, 5, 3, 6, 4, 3, 2, 3];
+  const fallbackIntensity = [0.85, 0.88, 0.92, 0.82, 0.85, 0.7, 0.8, 0.75, 0.9];
+
   return EMOTIONS.map((e, i) => ({
     emotion:       e.id,
-    count:         [4, 7, 5, 3, 6][i] ?? 2,
-    avg_intensity: [0.85, 0.88, 0.92, 0.82, 0.85][i] ?? 0.8,
+    count:         fallbackCounts[i] ?? 2,
+    avg_intensity: fallbackIntensity[i] ?? 0.8,
   }));
 }
 

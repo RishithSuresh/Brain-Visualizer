@@ -12,6 +12,10 @@ export const EMOTIONS = [
   { id: 'fear',      label: 'Fear',      emoji: '😨', color: '#ec4899', desc: 'Response to perceived threat or danger.'      },
   { id: 'anger',     label: 'Anger',     emoji: '😡', color: '#f97316', desc: 'Reaction to injustice or provocation.'        },
   { id: 'sadness',   label: 'Sadness',   emoji: '😢', color: '#3b82f6', desc: 'Emotional pain tied to loss or helplessness.' },
+  { id: 'calm',      label: 'Calm',      emoji: '😌', color: '#14b8a6', desc: 'Grounded, low-arousal state with clear focus.' },
+  { id: 'surprise',  label: 'Surprise',  emoji: '😲', color: '#8b5cf6', desc: 'Rapid shift in attention toward the unexpected.' },
+  { id: 'disgust',   label: 'Disgust',   emoji: '🤢', color: '#84cc16', desc: 'Aversion to something unpleasant or rejected.' },
+  { id: 'anxiety',   label: 'Anxiety',   emoji: '😟', color: '#f43f5e', desc: 'Anticipatory tension with elevated vigilance.' },
 ];
 
 export const EMOTION_RESEARCH_NOTES = {
@@ -58,6 +62,42 @@ export const EMOTION_RESEARCH_NOTES = {
       'Hippocampus is involved in memory and context, which can shape sad affect.',
       'Prefrontal regulation is relevant to reappraisal and mood control.',
       'Mood-related states usually involve several networks together.',
+    ],
+  },
+  calm: {
+    confidence: 'moderate',
+    summary: 'Calm states are often linked to stronger prefrontal regulation and reduced limbic reactivity.',
+    bullets: [
+      'Prefrontal cortex can support deliberate regulation and task focus.',
+      'Lower limbic drive is often associated with steadier emotional control.',
+      'Calm states are useful recovery windows after higher-arousal emotions.',
+    ],
+  },
+  surprise: {
+    confidence: 'moderate',
+    summary: 'Surprise is often associated with rapid attention shifting and heightened salience processing.',
+    bullets: [
+      'Thalamic routing helps redirect attention toward unexpected events.',
+      'Prefrontal regions help reframe what the surprise means.',
+      'Surprise can be neutral, positive, or negative depending on context.',
+    ],
+  },
+  disgust: {
+    confidence: 'moderate',
+    summary: 'Disgust is frequently tied to insular and cingulate processing around aversion and rejection.',
+    bullets: [
+      'Insula is often linked to visceral aversion and internal state awareness.',
+      'Cingulate regions can help decide whether to avoid or reappraise the trigger.',
+      'Disgust often overlaps with protective and boundary-setting responses.',
+    ],
+  },
+  anxiety: {
+    confidence: 'high',
+    summary: 'Anxiety often reflects sustained threat anticipation with amygdala, hippocampal, and prefrontal involvement.',
+    bullets: [
+      'Amygdala can bias attention toward possible danger.',
+      'Hippocampus helps attach context to the feeling and the trigger.',
+      'Prefrontal regulation matters for reducing overprediction and spirals.',
     ],
   },
 };
@@ -110,6 +150,24 @@ export const EMOTION_MAPPINGS = {
   ],
   sadness: [
     { name: 'Hippocampus', intensity: 0.85 },
+  ],
+  calm: [
+    { name: 'Prefrontal Cortex', intensity: 0.82 },
+    { name: 'Hippocampus', intensity: 0.60 },
+  ],
+  surprise: [
+    { name: 'Thalamus', intensity: 0.80 },
+    { name: 'Prefrontal Cortex', intensity: 0.68 },
+    { name: 'Amygdala', intensity: 0.55 },
+  ],
+  disgust: [
+    { name: 'Insula', intensity: 0.92 },
+    { name: 'Anterior Cingulate Cortex', intensity: 0.72 },
+  ],
+  anxiety: [
+    { name: 'Amygdala', intensity: 0.95 },
+    { name: 'Hippocampus', intensity: 0.80 },
+    { name: 'Prefrontal Cortex', intensity: 0.72 },
   ],
 };
 

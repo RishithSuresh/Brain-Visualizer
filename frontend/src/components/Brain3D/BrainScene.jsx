@@ -39,6 +39,10 @@ const EMOTION_COLORS = {
   anger: '#ff0000',
   fear: '#ec4899',
   sadness: '#2125f9',
+  calm: '#14b8a6',
+  surprise: '#8b5cf6',
+  disgust: '#84cc16',
+  anxiety: '#f43f5e',
 };
 
 function getAnatomicalZone(x, y, z) {

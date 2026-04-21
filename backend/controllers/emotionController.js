@@ -22,6 +22,24 @@ const LOCAL_MAPPINGS = {
   sadness: [
     { name: 'Hippocampus', intensity: 0.85, function_desc: 'Encodes sad memories and connects past experience to current mood.' },
   ],
+  calm: [
+    { name: 'Prefrontal Cortex', intensity: 0.82, function_desc: 'Supports regulation, attention, and a steady low-arousal state.' },
+    { name: 'Hippocampus', intensity: 0.6, function_desc: 'Helps anchor safe context and memory when the system is settled.' },
+  ],
+  surprise: [
+    { name: 'Thalamus', intensity: 0.8, function_desc: 'Redirects attention toward unexpected input and rapid changes.' },
+    { name: 'Prefrontal Cortex', intensity: 0.68, function_desc: 'Interprets the meaning of the unexpected event and helps resolve it.' },
+    { name: 'Amygdala', intensity: 0.55, function_desc: 'Adds a quick salience response when surprise feels intense.' },
+  ],
+  disgust: [
+    { name: 'Insula', intensity: 0.92, function_desc: 'Tracks aversion, bodily discomfort, and rejection signals.' },
+    { name: 'Anterior Cingulate Cortex', intensity: 0.72, function_desc: 'Helps evaluate and regulate the response to unpleasant stimuli.' },
+  ],
+  anxiety: [
+    { name: 'Amygdala', intensity: 0.95, function_desc: 'Creates threat vigilance and anticipatory alarm.' },
+    { name: 'Hippocampus', intensity: 0.8, function_desc: 'Attaches context and memory to the anxious state.' },
+    { name: 'Prefrontal Cortex', intensity: 0.72, function_desc: 'Works to regulate worry and reframe threat predictions.' },
+  ],
 };
 
 // In-memory history used for demos and local development
@@ -36,6 +54,10 @@ const INITIAL_HISTORY = [
   { id: 8, emotion: 'pain', intensity_multiplier: 1.0, timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
   { id: 9, emotion: 'happiness', intensity_multiplier: 0.9, timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
   { id: 10, emotion: 'sadness', intensity_multiplier: 0.7, timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+  { id: 11, emotion: 'calm', intensity_multiplier: 0.7, timestamp: new Date(Date.now() - 20 * 60 * 60 * 1000) },
+  { id: 12, emotion: 'surprise', intensity_multiplier: 0.82, timestamp: new Date(Date.now() - 16 * 60 * 60 * 1000) },
+  { id: 13, emotion: 'anxiety', intensity_multiplier: 0.93, timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000) },
+  { id: 14, emotion: 'disgust', intensity_multiplier: 0.76, timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000) },
 ];
 
 let history = INITIAL_HISTORY.slice();

@@ -3,16 +3,54 @@
  * ─────────────────────────────────────────────────────────────────
  * Main interactive page:
  *  • Left panel  – 3D brain canvas (BrainScene)
- *  • Right panel – Emotion selector, intensity slider, region panel
+ *  • Right panel – Emotion selector, intensity slider, region panel, session insight
  */
 import { Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import useEmotionData from '../hooks/useEmotionData';
+import useHistory from '../hooks/useHistory';
 import EmotionSelector from '../components/EmotionSelector';
 import IntensitySlider  from '../components/IntensitySlider';
 import RegionInfoPanel  from '../components/RegionInfoPanel';
 import BrainScene       from '../components/Brain3D/BrainScene';
-import { EMOTIONS } from '../utils/emotionMappings';
+import { EMOTIONS, EMOTION_RESEARCH_NOTES } from '../utils/emotionMappings';
+
+function buildSessionInsight(history, frequency, selectedEmotion, intensityMult) {
+  const selectedMeta = EMOTIONS.find((emotion) => emotion.id === selectedEmotion);
+  const dominant = frequency?.[0];
+  const dominantMeta = EMOTIONS.find((emotion) => emotion.id === dominant?.emotion);
+  const recent = history?.slice(0, 4) ?? [];
+  const recentLabels = recent
+    .map((entry) => EMOTIONS.find((emotion) => emotion.id === entry.emotion)?.label || entry.emotion)
+    .filter(Boolean);
+
+  const dominantLabel = dominantMeta?.label || dominant?.emotion || 'no dominant pattern yet';
+  const selectedNote = selectedEmotion ? EMOTION_RESEARCH_NOTES[selectedEmotion] : null;
+  const selectedLabel = selectedMeta?.label || 'No emotion selected';
+
+  let headline = 'Start tracing your emotional footprint';
+  let summary = 'Pick an emotion to activate the brain map and compare it with the recent session history.';
+  let guidance = 'Use the number keys or the selector grid to jump between emotions quickly.';
+
+  if (recent.length) {
+    headline = `Recent activity leans toward ${dominantLabel}`;
+    summary = `Across the latest ${history.length} selections, ${dominantLabel} appears most often. That suggests a repeating theme rather than a single isolated state.`;
+    guidance = `A current ${selectedLabel.toLowerCase()} selection at ${(intensityMult * 100).toFixed(0)}% intensity can be read alongside the recent trail to spot whether the session is stabilizing or staying reactive.`;
+  }
+
+  if (selectedNote?.summary) {
+    guidance = `${selectedNote.summary} ${guidance}`;
+  }
+
+  return {
+    headline,
+    summary,
+    guidance,
+    dominantLabel,
+    recentLabels,
+    selectedLabel,
+  };
+}
 
 function ActiveEmotionBadge({ emotion }) {
   if (!emotion) return null;
@@ -38,11 +76,14 @@ function ActiveEmotionBadge({ emotion }) {
 
 export default function VisualizationPage() {
   const [researchMode, setResearchMode] = useState(true);
+  const { history, frequency, loading: historyLoading } = useHistory();
 
   const {
     selectedEmotion, activeRegions, intensityMult,
     setIntensityMult, selectEmotion, loading, source,
   } = useEmotionData();
+
+  const insight = buildSessionInsight(history, frequency, selectedEmotion, intensityMult);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -155,6 +196,58 @@ export default function VisualizationPage() {
               emotion={selectedEmotion}
               researchMode={researchMode}
             />
+
+            <div className="rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-slate-950/90 via-slate-900/75 to-cyan-950/30 p-4 shadow-[0_0_30px_rgba(34,211,238,0.08)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
+                    Session insight
+                  </p>
+                  <h3 className="mt-1 text-sm font-semibold text-slate-100">
+                    {insight.headline}
+                  </h3>
+                </div>
+                <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+                  {historyLoading ? 'Syncing' : `${history.length} traces`}
+                </span>
+              </div>
+
+              <p className="mt-3 text-sm leading-6 text-slate-300">
+                {insight.summary}
+              </p>
+
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-xl border border-white/10 bg-white/5 px-2 py-3">
+                  <span className="block text-[10px] uppercase tracking-[0.22em] text-slate-500">Dominant</span>
+                  <span className="mt-1 block text-sm font-semibold text-cyan-200">{insight.dominantLabel}</span>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 px-2 py-3">
+                  <span className="block text-[10px] uppercase tracking-[0.22em] text-slate-500">Current</span>
+                  <span className="mt-1 block text-sm font-semibold text-slate-100">{insight.selectedLabel}</span>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 px-2 py-3">
+                  <span className="block text-[10px] uppercase tracking-[0.22em] text-slate-500">Intensity</span>
+                  <span className="mt-1 block text-sm font-semibold text-slate-100">{Math.round(intensityMult * 100)}%</span>
+                </div>
+              </div>
+
+              {insight.recentLabels.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {insight.recentLabels.map((label, index) => (
+                    <span
+                      key={`${label}-${index}`}
+                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-slate-300"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <p className="mt-4 rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm leading-6 text-slate-300">
+                {insight.guidance}
+              </p>
+            </div>
           </div>
         </div>
       </div>
