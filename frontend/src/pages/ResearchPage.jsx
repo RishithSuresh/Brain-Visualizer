@@ -35,106 +35,48 @@ const facts = [
   'Exercise, hydration, learning, and social connection all support healthier brain function.',
 ];
 
-function BrainOverviewDiagram() {
-  return (
-    <svg viewBox="0 0 640 420" className="h-full w-full" role="img" aria-label="Stylized brain anatomy diagram">
-      <defs>
-        <linearGradient id="brainGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#67e8f9" stopOpacity="0.95" />
-          <stop offset="45%" stopColor="#818cf8" stopOpacity="0.95" />
-          <stop offset="100%" stopColor="#f472b6" stopOpacity="0.95" />
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="640" height="420" rx="28" fill="#081224" />
-      <circle cx="490" cy="88" r="110" fill="#0f1d3b" opacity="0.9" />
-      <circle cx="136" cy="332" r="140" fill="#0f1d3b" opacity="0.7" />
-      <path
-        d="M220 88c-51 0-92 41-92 92 0 31 14 59 37 77-1 6-2 12-2 18 0 61 49 110 110 110h133c63 0 114-51 114-114 0-21-6-41-16-58 22-20 36-49 36-81 0-62-50-112-112-112-36 0-69 17-90 44-18-15-42-24-68-24z"
-        fill="url(#brainGlow)"
-        opacity="0.92"
-      />
-      <path d="M315 120c-22 18-35 45-35 75 0 31 12 59 33 79" stroke="#e0f2fe" strokeOpacity="0.45" strokeWidth="8" fill="none" strokeLinecap="round" />
-      <path d="M382 108c24 17 40 45 40 76 0 31-14 59-36 78" stroke="#e0f2fe" strokeOpacity="0.45" strokeWidth="8" fill="none" strokeLinecap="round" />
-      <path d="M256 216c22-14 52-19 81-19 27 0 54 4 76 16" stroke="#f8fafc" strokeOpacity="0.4" strokeWidth="7" fill="none" strokeLinecap="round" />
-      <path d="M240 274c27-10 61-15 95-15 37 0 72 7 100 21" stroke="#f8fafc" strokeOpacity="0.35" strokeWidth="7" fill="none" strokeLinecap="round" />
-      <g fill="#ffffff" opacity="0.95">
-        <circle cx="176" cy="120" r="10" />
-        <circle cx="464" cy="112" r="10" />
-        <circle cx="404" cy="288" r="10" />
-        <circle cx="236" cy="300" r="10" />
-      </g>
-      <g fill="none" stroke="#ffffff" strokeOpacity="0.34" strokeWidth="2.5">
-        <path d="M186 120h36" />
-        <path d="M474 112h42" />
-        <path d="M414 288h52" />
-        <path d="M246 300h-52" />
-      </g>
-      <text x="50" y="64" fill="#cbd5e1" fontSize="16" fontWeight="600">Brain overview</text>
-      <text x="50" y="88" fill="#94a3b8" fontSize="12">Stylized anatomy with highlighted major functional regions.</text>
-    </svg>
-  );
-}
+const referenceImages = [
+  {
+    src: 'https://commons.wikimedia.org/wiki/Special:FilePath/Human_brain.jpg',
+    title: 'Human brain anatomy',
+    caption: 'Sagittal-section illustration of the human brain.',
+  },
+  {
+    src: 'https://commons.wikimedia.org/wiki/Special:FilePath/Vertebrate-brain-regions_small.png',
+    title: 'Vertebrate brain regions',
+    caption: 'Comparative brain layout showing shared vertebrate structures.',
+  },
+  {
+    src: 'https://commons.wikimedia.org/wiki/Special:FilePath/Chemical_synapse_schema_cropped.jpg',
+    title: 'Neuron synapse',
+    caption: 'How neurons communicate across a synapse.',
+  },
+  {
+    src: 'https://commons.wikimedia.org/wiki/Special:FilePath/EmbryonicBrain.svg',
+    title: 'Embryonic brain development',
+    caption: 'Early-stage brain development from the neural tube.',
+  },
+];
 
-function LobeDiagram() {
+function ImageFeatureCard({ src, title, caption, overlay, fit = 'cover' }) {
   return (
-    <svg viewBox="0 0 640 420" className="h-full w-full" role="img" aria-label="Brain lobe map diagram">
-      <rect x="0" y="0" width="640" height="420" rx="28" fill="#0b1329" />
-      <g transform="translate(70 52)">
-        <path d="M132 22c58 0 104 46 104 104 0 17-4 33-11 47 19 18 31 43 31 71 0 54-44 98-98 98H113c-54 0-98-44-98-98 0-28 12-53 31-71-7-14-11-30-11-47 0-58 46-104 104-104z" fill="#172554" />
-        <path d="M132 22c58 0 104 46 104 104 0 17-4 33-11 47 19 18 31 43 31 71 0 54-44 98-98 98H113c-54 0-98-44-98-98 0-28 12-53 31-71-7-14-11-30-11-47 0-58 46-104 104-104z" fill="none" stroke="#38bdf8" strokeOpacity="0.24" strokeWidth="3" />
-        <path d="M65 94c21-26 52-41 88-41 33 0 64 13 85 36" fill="none" stroke="#38bdf8" strokeWidth="16" strokeLinecap="round" />
-        <path d="M40 168c28-19 62-29 100-29 41 0 78 11 107 32" fill="none" stroke="#a78bfa" strokeWidth="16" strokeLinecap="round" />
-        <path d="M56 248c25-15 58-23 95-23 42 0 79 10 110 31" fill="none" stroke="#f97316" strokeWidth="16" strokeLinecap="round" />
-        <path d="M87 316c15-10 37-16 62-16 31 0 59 8 83 24" fill="none" stroke="#22c55e" strokeWidth="16" strokeLinecap="round" />
-      </g>
-      <g fill="#e2e8f0">
-        <text x="405" y="88" fontSize="24" fontWeight="700">Lobes</text>
-        <text x="405" y="118" fontSize="13" fill="#94a3b8">Each lobe contributes a different part of cognition.</text>
-      </g>
-      <g>
-        <rect x="392" y="148" width="196" height="50" rx="14" fill="#0f172a" stroke="#38bdf8" strokeOpacity="0.3" />
-        <rect x="392" y="208" width="196" height="50" rx="14" fill="#0f172a" stroke="#a78bfa" strokeOpacity="0.3" />
-        <rect x="392" y="268" width="196" height="50" rx="14" fill="#0f172a" stroke="#f97316" strokeOpacity="0.3" />
-        <rect x="392" y="328" width="196" height="50" rx="14" fill="#0f172a" stroke="#22c55e" strokeOpacity="0.3" />
-      </g>
-      <g fill="#f8fafc" fontSize="14" fontWeight="600">
-        <text x="410" y="179">Frontal lobe</text>
-        <text x="410" y="239">Parietal lobe</text>
-        <text x="410" y="299">Temporal lobe</text>
-        <text x="410" y="359">Occipital lobe</text>
-      </g>
-    </svg>
-  );
-}
-
-function NeuronDiagram() {
-  return (
-    <svg viewBox="0 0 640 420" className="h-full w-full" role="img" aria-label="Neuron and synapse diagram">
-      <rect x="0" y="0" width="640" height="420" rx="28" fill="#09111f" />
-      <circle cx="150" cy="210" r="56" fill="#1d4ed8" opacity="0.9" />
-      <g stroke="#93c5fd" strokeWidth="10" strokeLinecap="round" fill="none">
-        <path d="M204 210h130" />
-        <path d="M334 210h88" />
-        <path d="M420 210h88" />
-      </g>
-      <g stroke="#38bdf8" strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.95">
-        <path d="M136 192c-26-36-42-54-72-74" />
-        <path d="M140 220c-38 6-60 16-88 34" />
-        <path d="M164 181c10-38 22-60 47-92" />
-        <path d="M168 234c18 30 31 50 56 78" />
-      </g>
-      <g fill="#e2e8f0">
-        <circle cx="470" cy="210" r="16" fill="#f59e0b" />
-        <circle cx="516" cy="210" r="16" fill="#f97316" />
-        <circle cx="562" cy="210" r="16" fill="#ef4444" />
-      </g>
-      <g stroke="#f8fafc" strokeOpacity="0.22" strokeWidth="2">
-        <path d="M486 210h16" />
-        <path d="M532 210h16" />
-      </g>
-      <text x="52" y="62" fill="#cbd5e1" fontSize="16" fontWeight="600">Neuron communication</text>
-      <text x="52" y="88" fill="#94a3b8" fontSize="12">Signals travel across axons and across synapses to different brain networks.</text>
-    </svg>
+    <figure className="overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/70 shadow-[0_0_40px_rgba(15,23,42,0.35)]">
+      <div className="relative">
+        <img
+          src={src}
+          alt={title}
+          className={`h-[420px] w-full object-${fit}`}
+          loading="lazy"
+        />
+        {overlay && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+        )}
+        <div className="absolute left-5 top-5 max-w-[75%]">
+          <p className="text-lg font-semibold text-white drop-shadow-md">{title}</p>
+          <p className="mt-1 text-sm leading-6 text-slate-200/90 drop-shadow-md">{caption}</p>
+        </div>
+      </div>
+    </figure>
   );
 }
 
@@ -172,7 +114,13 @@ export default function ResearchPage() {
           </div>
 
           <div className="glass-panel overflow-hidden border-sky-500/20 bg-slate-950/70 p-3 shadow-[0_0_50px_rgba(56,189,248,0.08)]">
-            <BrainOverviewDiagram />
+            <ImageFeatureCard
+              src="https://commons.wikimedia.org/wiki/Special:FilePath/Human_brain.jpg"
+              title="Brain overview"
+              caption="Real sagittal-section anatomy of the human brain."
+              overlay
+              fit="contain"
+            />
           </div>
         </motion.div>
 
@@ -197,7 +145,13 @@ export default function ResearchPage() {
             <h2 className="section-title">How neurons communicate</h2>
             <p className="section-sub">The brain depends on fast signaling between neurons and networks.</p>
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70">
-              <NeuronDiagram />
+              <ImageFeatureCard
+                src="https://commons.wikimedia.org/wiki/Special:FilePath/Chemical_synapse_schema_cropped.jpg"
+                title="Neuron communication"
+                caption="A real synapse diagram showing how signals pass between cells."
+                overlay
+                fit="contain"
+              />
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-3 text-sm text-slate-300">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Electrical impulses move down the axon.</div>
@@ -236,7 +190,13 @@ export default function ResearchPage() {
             <p className="section-sub">Use visual cues to remember the major topics faster.</p>
             <div className="space-y-4">
               <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70">
-                <LobeDiagram />
+                <ImageFeatureCard
+                  src="https://commons.wikimedia.org/wiki/Special:FilePath/Gehirn,_medial_-_Lobi_en.svg"
+                  title="Brain lobes"
+                  caption="A labeled medial-view lobe diagram used for anatomy study."
+                  overlay
+                  fit="contain"
+                />
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -250,6 +210,33 @@ export default function ResearchPage() {
               </div>
             </div>
           </motion.article>
+        </section>
+
+        <section className="glass-panel p-5">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="section-title">Reference image gallery</h2>
+              <p className="section-sub">Public Wikimedia images that support the brain overview and anatomy sections.</p>
+            </div>
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Open-license reference material</p>
+          </div>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {referenceImages.map((image) => (
+              <figure key={image.title} className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70">
+                <img
+                  src={image.src}
+                  alt={image.title}
+                  className="h-56 w-full object-cover"
+                  loading="lazy"
+                />
+                <figcaption className="space-y-1 p-4">
+                  <h3 className="text-sm font-semibold text-white">{image.title}</h3>
+                  <p className="text-xs leading-5 text-slate-400">{image.caption}</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </section>
 
         <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
