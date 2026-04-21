@@ -4,6 +4,7 @@ import ToastViewport from './components/Toast';
 import HomePage from './pages/HomePage';
 import VisualizationPage from './pages/VisualizationPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import ResearchPage from './pages/ResearchPage';
 import { ToastProvider } from './hooks/useToast';
 
 /**
@@ -20,6 +21,7 @@ function App() {
             <Route path="/"           element={<HomePage />} />
             <Route path="/visualize"  element={<VisualizationPage />} />
             <Route path="/analytics"  element={<AnalyticsPage />} />
+            <Route path="/research"   element={<ResearchPage />} />
           </Routes>
           <ToastViewport />
         </div>

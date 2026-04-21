@@ -8,6 +8,7 @@ const links = [
   { to: '/',          label: 'Home'         },
   { to: '/visualize', label: 'Visualize'    },
   { to: '/analytics', label: 'Analytics'    },
+  { to: '/research',  label: 'Research'     },
 ];
 
 export default function Navbar() {
