@@ -2,7 +2,7 @@
  * BrainScene.jsx
  * ─────────────────────────────────────────────────────────────────
  * Main React Three Fiber scene containing:
- *   • A translucent holographic brain shell from brain.glb
+ *   • A translucent holographic brain shell from brain_hologram.glb
  *   • Internal neural-like line structures and glowing nodes
  *   • Region activation markers positioned in 3D space
  *   • Bloom post-processing and orbit controls
@@ -164,15 +164,14 @@ function applyActivationOverlay(root, zoneIntensities, selectedEmotion) {
   });
 }
 
-function BrainModel({ mode = 'classic', activeRegions = [], selectedEmotion = null }) {
-  const modelPath = mode === 'holographic' ? '/models/brain_hologram.glb' : '/models/brain.glb';
-  const { scene } = useGLTF(modelPath);
+function BrainModel({ activeRegions = [], selectedEmotion = null }) {
+  const { scene } = useGLTF('/models/brain_hologram.glb');
 
   const layers = useMemo(() => {
     const normalizedRoot = scene.clone(true);
     normalizeModel(normalizedRoot);
 
-    const isHolographic = mode === 'holographic';
+    const isHolographic = true;
     const isFear = selectedEmotion === 'fear';
     const zoneIntensities = mapActiveRegionsToZones(activeRegions);
     const activationRoot = normalizedRoot.clone(true);
@@ -216,10 +215,9 @@ function BrainModel({ mode = 'classic', activeRegions = [], selectedEmotion = nu
     });
 
     const wireMaterial = new THREE.MeshBasicMaterial({
-      // Keep the classic mesh visual language on both models.
       color: '#ffffff',
       transparent: true,
-      opacity: isHolographic ? 0.08 : 0.06,
+      opacity: 0.08,
       wireframe: true,
       depthWrite: false,
     });
@@ -242,7 +240,7 @@ function BrainModel({ mode = 'classic', activeRegions = [], selectedEmotion = nu
       activation: makeLayer(activationMaterial, activationRoot, 1.015),
       wire: makeLayer(wireMaterial),
     };
-  }, [scene, mode, activeRegions, selectedEmotion]);
+  }, [scene, activeRegions, selectedEmotion]);
 
   return (
     <group>
@@ -255,11 +253,10 @@ function BrainModel({ mode = 'classic', activeRegions = [], selectedEmotion = nu
 }
 
 // Preload the model as soon as the module is imported
-useGLTF.preload('/models/brain.glb');
 useGLTF.preload('/models/brain_hologram.glb');
 
 /** Slowly auto-rotates the whole brain; user can override via OrbitControls */
-function RotatingGroup({ activeRegions, mode, selectedEmotion }) {
+function RotatingGroup({ activeRegions, selectedEmotion }) {
   const groupRef = useRef();
   useFrame(({ clock }) => {
     if (groupRef.current) {
@@ -269,7 +266,7 @@ function RotatingGroup({ activeRegions, mode, selectedEmotion }) {
 
   return (
     <group ref={groupRef}>
-      <BrainModel mode={mode} activeRegions={activeRegions} selectedEmotion={selectedEmotion} />
+      <BrainModel activeRegions={activeRegions} selectedEmotion={selectedEmotion} />
       {BRAIN_REGION_DATA.map((region) => {
         const active = activeRegions.find(r => r.name === region.name);
         return (
@@ -285,8 +282,8 @@ function RotatingGroup({ activeRegions, mode, selectedEmotion }) {
   );
 }
 
-export default function BrainScene({ activeRegions = [], mode = 'classic', selectedEmotion = null }) {
-  const isHolographic = mode === 'holographic';
+export default function BrainScene({ activeRegions = [], selectedEmotion = null }) {
+  const isHolographic = true;
 
   return (
     <Canvas
@@ -294,28 +291,26 @@ export default function BrainScene({ activeRegions = [], mode = 'classic', selec
       dpr={[1, 2]}
       gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
       style={{
-        background: isHolographic
-          ? 'radial-gradient(ellipse at 50% 35%, #0f4c8d 0%, #072856 45%, #03122f 100%)'
-          : 'radial-gradient(ellipse at 50% 35%, #10348f 0%, #041247 45%, #01071f 100%)',
+        background: 'radial-gradient(ellipse at 50% 35%, #0f4c8d 0%, #072856 45%, #03122f 100%)',
       }}
     >
-      <color attach="background" args={[isHolographic ? '#03122f' : '#01071f']} />
+      <color attach="background" args={['#03122f']} />
 
-      <ambientLight intensity={isHolographic ? 0.45 : 0.4} color="#ffffff" />
-      <pointLight position={[0, 3.8, 4]} intensity={isHolographic ? 1.3 : 1.1} color="#ffffff" />
-      <pointLight position={[-4, 1.2, -3]} intensity={isHolographic ? 0.55 : 0.45} color="#ffffff" />
-      <pointLight position={[4, -1.5, 2.5]} intensity={isHolographic ? 0.45 : 0.35} color="#ffffff" />
+      <ambientLight intensity={0.45} color="#ffffff" />
+      <pointLight position={[0, 3.8, 4]} intensity={1.3} color="#ffffff" />
+      <pointLight position={[-4, 1.2, -3]} intensity={0.55} color="#ffffff" />
+      <pointLight position={[4, -1.5, 2.5]} intensity={0.45} color="#ffffff" />
 
-      <Stars radius={55} depth={45} count={isHolographic ? 3000 : 2200} factor={2.5} fade speed={0.6} />
+      <Stars radius={55} depth={45} count={3000} factor={2.5} fade speed={0.6} />
 
       <Suspense fallback={null}>
-        <RotatingGroup activeRegions={activeRegions} mode={mode} selectedEmotion={selectedEmotion} />
+        <RotatingGroup activeRegions={activeRegions} selectedEmotion={selectedEmotion} />
       </Suspense>
 
       <EffectComposer>
         <Bloom
-          intensity={isHolographic ? 0.95 : 1.15}
-          luminanceThreshold={isHolographic ? 0.18 : 0.14}
+          intensity={0.95}
+          luminanceThreshold={0.18}
           luminanceSmoothing={0.88}
           mipmapBlur
         />

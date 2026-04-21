@@ -37,7 +37,6 @@ function ActiveEmotionBadge({ emotion }) {
 }
 
 export default function VisualizationPage() {
-  const [sceneMode, setSceneMode] = useState('holographic');
   const [researchMode, setResearchMode] = useState(true);
 
   const {
@@ -76,32 +75,6 @@ export default function VisualizationPage() {
              style={{ background: 'radial-gradient(ellipse at 50% 40%, #041e30 0%, #020c18 100%)' }}>
           <ActiveEmotionBadge emotion={selectedEmotion} />
 
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex rounded-full
-                          border border-brain-border bg-brain-panel/85 backdrop-blur-sm p-1 gap-1">
-            <button
-              type="button"
-              onClick={() => setSceneMode('classic')}
-              className={`px-3 py-1 text-xs rounded-full transition ${
-                sceneMode === 'classic'
-                  ? 'bg-slate-200 text-slate-900'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              Classic
-            </button>
-            <button
-              type="button"
-              onClick={() => setSceneMode('holographic')}
-              className={`px-3 py-1 text-xs rounded-full transition ${
-                sceneMode === 'holographic'
-                  ? 'bg-cyan-300 text-cyan-950'
-                  : 'text-cyan-200 hover:text-cyan-100'
-              }`}
-            >
-              Holographic net/mesh
-            </button>
-          </div>
-
           <button
             type="button"
             onClick={() => setResearchMode((value) => !value)}
@@ -127,7 +100,7 @@ export default function VisualizationPage() {
               Loading 3D scene…
             </div>
           }>
-            <BrainScene activeRegions={activeRegions} mode={sceneMode} selectedEmotion={selectedEmotion} />
+            <BrainScene activeRegions={activeRegions} selectedEmotion={selectedEmotion} />
           </Suspense>
 
           {/* Overlay hint */}
