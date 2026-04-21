@@ -13,7 +13,7 @@ import useHistory from '../hooks/useHistory';
 import EmotionFrequency from '../components/Analytics/EmotionFrequency';
 import IntensityTrend   from '../components/Analytics/IntensityTrend';
 import { useToast } from '../hooks/useToast';
-import { EMOTIONS } from '../utils/emotionMappings';
+import { EMOTIONS, EMOTION_RESEARCH_NOTES } from '../utils/emotionMappings';
 import { formatExactTime, formatRelativeTime } from '../utils/dateUtils';
 
 const EMOTION_META = Object.fromEntries(EMOTIONS.map(e => [e.id, e]));
@@ -49,6 +49,64 @@ function SectionCard({ title, eyebrow, children, className = '' }) {
   );
 }
 
+function buildDeepInsight(history, frequency) {
+  const topEmotion = frequency[0];
+  const topEmotionLabel = topEmotion ? (EMOTION_META[topEmotion.emotion]?.label ?? topEmotion.emotion) : 'your selections';
+  const totalSelections = frequency.reduce((sum, item) => sum + Number(item.count || 0), 0);
+  const dominantShare = totalSelections && topEmotion ? Math.round((Number(topEmotion.count) / totalSelections) * 100) : 0;
+  const avgIntensity = history.length
+    ? history.reduce((sum, item) => sum + Number(item.intensity_multiplier || 0), 0) / history.length
+    : 0;
+  const highIntensity = avgIntensity >= 0.85;
+
+  let patternLabel = 'mixed emotional activity';
+  let patternSummary = 'Your selection history is spread across several states, suggesting a varied emotional profile rather than one fixed pattern.';
+  let advice = [
+    'Watch for repeated combinations or time-of-day patterns so you can connect emotions to context.',
+    'Use the selection history as a quick mood log when you notice changes in energy or focus.',
+  ];
+
+  if (topEmotion?.emotion === 'fear' || topEmotion?.emotion === 'anger') {
+    patternLabel = 'high-arousal stress pattern';
+    patternSummary = `Your selections lean toward ${topEmotionLabel.toLowerCase()}, which usually maps to a stronger threat-or-action response. That often shows up as a faster, more reactive state.`;
+    advice = [
+      'Pause before reacting and give yourself a short downshift: slow breathing, a brief walk, or a low-stimulation reset.',
+      'Reduce input load for a few minutes when the feeling spikes, then re-check whether the trigger is still present.',
+      'If the same pattern keeps returning, jot down the trigger, body sensation, and first thought so you can spot the loop earlier.',
+    ];
+  } else if (topEmotion?.emotion === 'pain' || topEmotion?.emotion === 'sadness') {
+    patternLabel = 'low-mood or discomfort pattern';
+    patternSummary = `Your history is anchored by ${topEmotionLabel.toLowerCase()}, which often goes with heavier internal processing and slower recovery after a trigger.`;
+    advice = [
+      'Keep the next step small: hydrate, stretch, and reduce the number of decisions you need to make right away.',
+      'Use a simple note on what happened before the feeling changed, especially if the same emotion repeats several times.',
+      'If the intensity stays high across multiple entries, add a grounding routine before returning to the task that triggered it.',
+    ];
+  } else if (topEmotion?.emotion === 'happiness') {
+    patternLabel = 'reward-and-renewal pattern';
+    patternSummary = `Your selections are centered on ${topEmotionLabel.toLowerCase()}, which suggests the app is picking up more positive or recovery-oriented states than reactive ones.`;
+    advice = [
+      'Capture what was happening when this state appeared so you can repeat the conditions that support it.',
+      'Use the positive state as a recovery anchor after stressful sessions instead of treating it as a separate event.',
+      'Reinforce the routines that lead here, because repeated positive cues can make later regulation easier.',
+    ];
+  }
+
+  if (highIntensity) {
+    advice.unshift('Overall intensity is running high, so slower transitions and fewer simultaneous tasks are more likely to help than adding more stimulation.');
+  }
+
+  const research = topEmotion?.emotion ? EMOTION_RESEARCH_NOTES[topEmotion.emotion] : null;
+
+  return {
+    patternLabel,
+    patternSummary,
+    research,
+    advice,
+    dominantShare,
+  };
+}
+
 export default function AnalyticsPage() {
   const { history, frequency, trend, loading, clearing, error, refresh, clearHistory } = useHistory();
   const { pushToast } = useToast();
@@ -74,6 +132,7 @@ export default function AnalyticsPage() {
   const strongestTrend = trend.length
     ? trend.reduce((max, row) => (parseFloat(row.intensity_multiplier) > parseFloat(max.intensity_multiplier) ? row : max), trend[0])
     : null;
+  const deepInsight = buildDeepInsight(history, frequency);
 
   const insightNotes = [
     latestSelection && {
@@ -169,6 +228,56 @@ export default function AnalyticsPage() {
                 Select a few emotions to unlock dashboard insights.
               </div>
             )}
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Deep Insights" eyebrow="Pattern reading" className="mb-8">
+        <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-5">
+          <div className="rounded-2xl border border-brain-border/70 bg-gradient-to-br from-sky-500/10 via-white/[0.03] to-transparent p-5 space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-300 text-xs font-semibold">
+              🧠 {deepInsight.patternLabel}
+            </div>
+            <p className="text-sm leading-6 text-slate-300">
+              {deepInsight.patternSummary}
+            </p>
+            {deepInsight.research && (
+              <div className="rounded-xl border border-brain-border bg-slate-950/40 p-4 space-y-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500 mb-1">Research signal</p>
+                  <p className="text-sm text-slate-200">{deepInsight.research.summary}</p>
+                </div>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {deepInsight.research.bullets.map((bullet) => (
+                    <div key={bullet} className="rounded-lg border border-brain-border/60 bg-white/[0.02] p-3 text-xs leading-5 text-slate-400">
+                      {bullet}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-brain-border/70 bg-white/[0.02] p-5 space-y-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500 mb-1">Actionable advice</p>
+              <p className="text-sm text-slate-300">
+                Based on {deepInsight.dominantShare ? `${deepInsight.dominantShare}% of your saved sessions` : 'the current session pattern'}, these are the most useful next steps.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {deepInsight.advice.map((item, index) => (
+                <div key={item} className="flex gap-3 rounded-xl border border-brain-border/70 bg-slate-950/25 p-3">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-500/15 text-sky-300 text-xs font-semibold">
+                    {index + 1}
+                  </span>
+                  <p className="text-sm leading-6 text-slate-300">{item}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">
+              Tip: compare the advice above with your recent activity table to see whether the emotion is shifting or repeating.
+            </div>
           </div>
         </div>
       </SectionCard>
